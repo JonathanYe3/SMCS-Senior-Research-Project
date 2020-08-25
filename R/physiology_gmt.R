@@ -34,7 +34,7 @@ sortresp <- function(dat, respiration, keyword){
 
 gram_negative <- sortgram(gram, gram_type, "negative") %>% 
       rename(gram_negative = genus)
-gram_positive <- sortgram(gram, gram_type, "negative") %>% 
+gram_positive <- sortgram(gram, gram_type, "positive") %>% 
       rename(gram_positive = genus)
 
 facultatively_aerobic <- sortresp(resp, respiration, "facultatively aerobic") %>% 
@@ -56,4 +56,4 @@ gmt_phys <- c(gram_negative, gram_positive,
               facultatively_aerobic, obligately_aerobic, aerobic,
               facultatively_anaerobic, obligately_anaerobic, anaerobic)
 
-EnrichmentBrowser::writeGMT(gmt_phys, gmt.file = "data/physiologies.gmt")
+EnrichmentBrowser::writeGMT(gmt_phys, gmt.file = "data/physiologies2.gmt")

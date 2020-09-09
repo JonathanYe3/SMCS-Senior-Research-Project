@@ -1,20 +1,34 @@
-library(curatedMetagenomicData)
-library(bugSetEnrichment)
-library(EnrichmentBrowser)
-library(SummarizedExperiment)
-library(Biobase)
-library(coin)
+pacman::p_load("curatedMetagenomicData", "EnrichmentBrowser", "SummarizedExperiment", "dplyr", "stringr", "qusage")
 
-nielson <- curatedMetagenomicData("NielsenHB_2014.metaphlan_bugs_list.stool", dryrun = F)
+#get IBD data and format
+nielson <- curatedMetagenomicData("NielsenHB_2014.metapfhlan_bugs_list.stool", dryrun = F, counts = T)
+nielson.eset <- nielson[[1]]
+nielson.se <- as(nielson.eset, "SummarizedExperiment")
 
-#group 1, study_condition: 0 is control, 1 is IBD
-grp1=ifelse(nielson[[1]]$study_condition == "control", 0, 1)
-nielson[[1]]$GROUP=grp1
-
-#group 2, age_category: 1 is adult,  0 is senior and schoolage
-grp2=ifelse(nielson[[2]]$age_category == "adult", 1, 0)
-nielson[[2]]$GROUP=grp2
+#assign 1 to IBD, 0 to control
+grp1 = ifelse(nielson.se$study_condition == "control", 0, 1)
+nielson.se$GROUP = grp1
 
 #differential expression analysis
+nielson.se <- deAna(nielson.se, de.method = "DESeq2")
 
-z=deAna(nielson[[1]], de.method="coin", filter.by.expr = FALSE)
+#reformat nielson microbe names, no MetaPhlAn string format
+n <- rownames(nielson.se)
+
+reg_name <- function(MetaPhlAn){
+      temp <- sub(".*g__", "", MetaPhlAn)
+      gsub("\\|s__.*", "", temp)
+      gsub("_noname", "", temp)
+}
+
+for(i in 1L:length(n)){
+      reg_names <- n %>% 
+            reg_name()
+}
+
+rownames(nielson.se) <- reg_names
+
+#set-based enrichment analysis
+bergeys.gmt <- read.gmt("data/physiologies3.gmt")
+results <- sbea("ora", nielson.se, bergeys.gmt, perm = 0)
+gsRanking(results, signif.only = F)

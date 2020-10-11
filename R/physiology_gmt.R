@@ -1,10 +1,10 @@
 #setup
 pacman::p_load("tidyverse", "data.table")
-load("data/physiologies.Rda")
+load("data/physiologies3.Rda")
 
 #change empty cells to na
-phys <- physiologies %>% mutate_all(na_if, "")
-rm(physiologies)
+phys <- physiologies3 %>% mutate_all(na_if, "")
+rm(physiologies3)
 
 #get gram and oxygen utilization data
 gram <- select(phys, genus, gram_type) %>% 
@@ -24,8 +24,8 @@ sortgram <- function(dat, gram_type, keyword){
 #function for organizing oxygen utilization by keyword-----------------
 
 #keyword must be a string in quotes
-sortresp <- function(dat, respiration, keyword){
-      filter(.data = dat, respiration == keyword) %>% 
+sortresp <- function(dat, respiration, keyword, keyword2 = "none"){
+      filter(.data = dat, respiration == keyword | respiration == keyword2) %>% 
             subset(select = -c(respiration)) %>% 
             as.vector()
 }
@@ -41,10 +41,10 @@ facultatively_aerobic <- sortresp(resp, respiration, "facultatively aerobic") %>
       rename(facultatively_aerobic = genus)
 obligately_aerobic <- sortresp(resp, respiration, "obligately aerobic") %>% 
       rename(obligately_aerobic = genus)
-aerobic <- sortresp(resp, respiration, "aerobic") %>% 
+aerobic <- sortresp(resp, respiration, "aerobic", "aerobic and facultatively anaerobic") %>% 
    rename(aerobic = genus)
 
-facultatively_anaerobic <- sortresp(resp, respiration, "facultatively anaerobic") %>% 
+facultatively_anaerobic <- sortresp(resp, respiration, "facultatively anaerobic", "aerobic and facultatively anaerobic") %>% 
       rename(facultatively_anaerobic = genus)
 obligately_anaerobic <- sortresp(resp, respiration, "obligately anaerobic") %>% 
       rename(obligately_anaerobic = genus)
@@ -56,4 +56,4 @@ gmt_phys <- c(gram_negative, gram_positive,
               facultatively_aerobic, obligately_aerobic, aerobic,
               facultatively_anaerobic, obligately_anaerobic, anaerobic)
 
-EnrichmentBrowser::writeGMT(gmt_phys, gmt.file = "data/physiologies2.gmt")
+EnrichmentBrowser::writeGMT(gmt_phys, gmt.file = "data/physiologies4.gmt")

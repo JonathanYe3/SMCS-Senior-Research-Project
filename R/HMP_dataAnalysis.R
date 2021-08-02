@@ -1,7 +1,7 @@
 #load packages
 pacman::p_load("curatedMetagenomicData", "EnrichmentBrowser", "SummarizedExperiment", "dplyr", "stringr", "EnhancedVolcano")
 
-#Format data for SE
+#Format data for SummarizedExperiment
 hmp <- readr::read_tsv("data/HMP2_dataset_mpa3.tsv")
 hmp.metadata <- as.data.frame(t(hmp[1:135,])) %>% 
    janitor::row_to_names(row_number = 1)
@@ -11,8 +11,6 @@ rownames(assay) <- assay[,1]
 assay <- assay[,-1]
 mode(assay) <- "numeric"
 
-hmp.se <- SummarizedExperiment(assays = list(assay), colData = hmp.metadata)
-
 #get raw read counts
 mode(hmp.se$number_reads) <- "numeric"
 mode(assay(hmp.se)) <- "numeric"
@@ -21,7 +19,7 @@ hmp.counts = round(hmp.counts)
 hmp.se <- SummarizedExperiment(assays = hmp.counts, colData = hmp.metadata)
 
 #location subset
-hmp.se <- subset(hmp.se, , hmp.se$location == "Boston")
+hmp.se <- subset(hmp.se, ,hmp.se$location == "Boston")
 
 grp1 = ifelse(hmp.se$study_condition == "IBD", 1, 0)
 hmp.se$GROUP = grp1

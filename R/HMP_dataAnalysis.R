@@ -11,6 +11,8 @@ rownames(assay) <- assay[,1]
 assay <- assay[,-1]
 mode(assay) <- "numeric"
 
+hmp.se <- SummarizedExperiment(assays = list(assay), colData = hmp.metadata)
+
 #get raw read counts
 mode(hmp.se$number_reads) <- "numeric"
 mode(assay(hmp.se)) <- "numeric"

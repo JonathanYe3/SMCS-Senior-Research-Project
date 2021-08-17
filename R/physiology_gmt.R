@@ -11,6 +11,7 @@ gram <- select(phys, genus, gram_type) %>%
       drop_na()
 resp <- select(phys, genus, respiration) %>% 
       drop_na()
+bugsID <- tidyr::unite(bugsPhys, col = "bugsID", "4", "1", sep = "NCBI:txid", remove = F)
 
 #function for organizing gram stains by keyword-----------------
 
